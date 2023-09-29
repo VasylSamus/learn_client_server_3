@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  api:
+    container_name: api
+    image: api
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file:
+      - .env
+    entrypoint: /entrypoint.sh
+    volumes:
+      - ./app:/usr/src/app/
+    ports:
+      - "8000:8000"
+    networks:
+      - backend_network
+    depends_on:
+      - db
+
+  db:
+    container_name: ${CI_ENVIRONMENT_NAME}-shop-db
+    image: postgres:13-alpine3.14
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - .env
+    networks:
+      - backend_network
+    restart:
+      always
+
+volumes:
+  postgres_data:
+
+networks:
+  backend_network:
+    driver: bridge
+    name: backend_network
